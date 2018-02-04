@@ -1,0 +1,22 @@
+/.vs/*
+
+*.exe
+*/bin/*
+*/pkg/*
+
+/src/google.golang.org/grpc/
+/src/google.golang.org/genproto/
+/src/google.golang.org/api/
+/src/golang.org/x/oauth2/
+/src/golang.org/x/net/
+/src/github.com/googleapis/gax-go/
+/src/github.com/golang/protobuf/
+
+# dep generated files to ignore
+*/dep/*
+/dep.exe
+/testdep
+/licenseok
+/profile.out
+/coverage.txt
+release/
