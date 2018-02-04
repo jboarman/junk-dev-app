@@ -1,8 +1,8 @@
-/.vs/*
+/.vs/
 
 *.exe
-*/bin/*
-*/pkg/*
+/bin/
+/pkg/
 
 /src/google.golang.org/grpc/
 /src/google.golang.org/genproto/
@@ -13,10 +13,15 @@
 /src/github.com/golang/protobuf/
 
 # dep generated files to ignore
-*/dep/*
+/dep/
 /dep.exe
 /testdep
 /licenseok
 /profile.out
 /coverage.txt
 release/
+
+# dependencies
+*/github.com/
+*/golang.org/
+*/google.golang.org/
