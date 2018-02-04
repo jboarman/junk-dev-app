@@ -13,12 +13,13 @@
 /src/github.com/golang/protobuf/
 
 # dep generated files to ignore
-/dep/
-/dep.exe
-/testdep
-/licenseok
-/profile.out
-/coverage.txt
+vendor/
+dep/
+dep.exe
+testdep
+licenseok
+profile.out
+coverage.txt
 release/
 
 # dependencies
