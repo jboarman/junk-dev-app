@@ -111,10 +111,10 @@ GOPATH (c:\projects\junk-test-app\)
                 └───appengine
 ```
 
-Tree 3 - Vendoring via `dep` (tree suggested by @derekperkins)
+Tree 3 - Vendoring via `dep` (alternate placement)
 ==============================================================
 
-This tree placed the 
+This tree suggested by [@derekperkins](https://github.com/derekperkins) places the GAE definition into a folder that has no subfolders based on an assumption that `gcloud app deploy` might not like to see dependencies contained in subfolders of the `main.go` app bootstrap definition.
 
 ```
 GOPATH (c:\projects\junk-test-app\)
