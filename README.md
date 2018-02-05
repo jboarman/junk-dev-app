@@ -1,6 +1,6 @@
-I've tried two different ways of setting up dependencies.
+I've tried **three** different ways of setting up dependencies.
 
-However, regardless of the approach I've used, no approach seems to work for all three of these scenarios:
+However, regardless of the approach I've used, no approach seems to work for all three of these build scenarios:
 
 1. Local `go run main.go`
 2. Local `dev_appserver.py app.yaml`
@@ -9,7 +9,7 @@ However, regardless of the approach I've used, no approach seems to work for all
 Local `go run main.go`
 ======================
 
-Both ways of setting up my dependencies work as expected when treating the app as just a simple Go app, ala:
+All the ways of setting up my dependencies work as expected when treating the app as just a simple Go app, ala:
 
 ```
 > go run main.go
@@ -21,7 +21,7 @@ Both ways of setting up my dependencies work as expected when treating the app a
 Local `dev_appserver.py app.yaml`
 =================================
 
-However, I run into problems using _either_ approach when running the local dev server, ala:
+However, I run into problems using _any_ approach when running the local dev server, ala:
 
 ```
 > dev_appserver.py app.yaml
@@ -70,14 +70,14 @@ ERROR: (gcloud.app.deploy) Error Response: [9] Deployment contains files that ca
 So, regardless of the approach I've used, no approach seems to work for all three scenarios.
 
 
-Dependencies via `src`
-=============================
+Tree 1 - Dependencies via `src`
+===============================
 
 Just to be clear, as I'm a total noob, this is what I mean when I say I am using the `src` dependency method.
 
 ```
 GOPATH (c:\projects\junk-test-app\)
-├───src
+└───src
     ├───github.com
     │   └───golang
     ├───golang.org
@@ -86,18 +86,44 @@ GOPATH (c:\projects\junk-test-app\)
     │   └───appengine
     ├───helloservice
     └───helloworld
+        ├───main.go
+        └───app.yaml
 ```
 
-Vendoring via `dep`
-======================
+Tree 2 -- Vendoring via `dep`
+=============================
 
 And, this us what I mean when I say I am using the `dep` dependency method.
 
 ```
 GOPATH (c:\projects\junk-test-app\)
-├───src
+└───src
     ├───helloservice
     └───helloworld
+        │   ├───main.go
+        │   └───app.yaml
+        └───vendor
+            ├───github.com
+            │   └───golang
+            ├───golang.org
+            │   └───x
+            └───google.golang.org
+                └───appengine
+```
+
+Tree 3 - Vendoring via `dep` (tree suggested by @derekperkins)
+==============================================================
+
+This tree placed the 
+
+```
+GOPATH (c:\projects\junk-test-app\)
+└───src
+    ├───helloservice
+    └───helloworld
+        ├───gaedef (Derek calls this folder "service")
+        │   ├───main.go
+        │   └───app.yaml
         └───vendor
             ├───github.com
             │   └───golang
