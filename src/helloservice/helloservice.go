@@ -8,7 +8,7 @@ import (
 
 func init() {
 	log.Print("Initializing helloservice")
-	http.HandleFunc("/hi", handle)
+	http.HandleFunc("/", handle)
 	http.HandleFunc("/_health", healthCheckHandler)
 }
 

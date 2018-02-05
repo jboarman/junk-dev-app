@@ -1,13 +1,14 @@
 I've tried **three** different ways of setting up dependencies.
 
-However, regardless of the approach I've used, no approach seems to work for all three of these build scenarios:
+However, regardless of the approach I've used, no approach seems to work for all three of these build / hosting scenarios:
 
-1. Local `go run main.go`
-2. Local `dev_appserver.py app.yaml`
-3. Remote `gcloud app deploy app.yaml`
+| hosting / build scenario            | classic `src` dependecies | `dep` vendoring | `dep` + separate `gaedef` |
+| :---------------------------------- | :-----------------------: | :-------------: | :-----------------------: |
+| Local `go run main.go`              | SUCCESS                   | SUCCESS         | SUCCESS                   |
+| Local `dev_appserver.py app.yaml`   | ERROR                     | ERROR           | ERROR                     |
+| Remote `gcloud app deploy app.yaml` | SUCCESS                   | ERROR           | ERROR                     |
 
-Local `go run main.go`
-======================
+## Local `go run main.go`
 
 All the ways of setting up my dependencies work as expected when treating the app as just a simple Go app, ala:
 
@@ -18,8 +19,7 @@ All the ways of setting up my dependencies work as expected when treating the ap
 2018/02/04 16:01:42 `Hello` sent to client
 ```
 
-Local `dev_appserver.py app.yaml`
-=================================
+## Local `dev_appserver.py app.yaml`
 
 However, I run into problems using _any_ approach when running the local dev server, ala:
 
@@ -35,8 +35,7 @@ INFO     2018-02-04 16:08:15,127 api_server.py:971] Applying all pending transac
 INFO     2018-02-04 16:08:15,128 api_server.py:974] Saving search indexes
 ```
 
-Remote `gcloud app deploy`
-==========================
+## Remote `gcloud app deploy`
 
 Deploying to `gcloud` works just fine and dandy when using the `src` method of handling dependencies.  However, it totally blows up when I try to deploy using the `dep` methodology:
 
@@ -70,8 +69,7 @@ ERROR: (gcloud.app.deploy) Error Response: [9] Deployment contains files that ca
 So, regardless of the approach I've used, no approach seems to work for all three scenarios.
 
 
-Tree 1 - Dependencies via `src`
-===============================
+# Tree 1 - Dependencies via `src`
 
 Just to be clear, as I'm a total noob, this is what I mean when I say I am using the `src` dependency method.
 
@@ -90,10 +88,18 @@ GOPATH (c:\projects\junk-test-app\)
         └───app.yaml
 ```
 
-Tree 2 -- Vendoring via `dep`
-=============================
+## Tree 1 - Errors
 
-And, this us what I mean when I say I am using the `dep` dependency method.
+No errors occur when running the program locally or deploying to GAE via `gcloud app deploy`.
+
+However, locally hosting the app via `dev_appserver.py app.yaml` terminates with the following error:
+```
+ERROR    2018-02-04 16:08:14,420 module.py:1602]
+```
+
+# Tree 2 -- Vendoring via `dep`
+
+And, this is what I mean when I say I am using the `dep` dependency method.
 
 ```
 GOPATH (c:\projects\junk-test-app\)
@@ -109,6 +115,23 @@ GOPATH (c:\projects\junk-test-app\)
             │   └───x
             └───google.golang.org
                 └───appengine
+```
+
+## Tree 2 - Errors
+
+No errors occur when running the program locally.
+
+However, locally hosting the app via `dev_appserver.py app.yaml` or deploying to GAE via `gcloud app deploy` terminates with the errors below.
+
+`gcloud app deploy` error:
+```
+ERROR: (gcloud.app.deploy) Error Response: [9] Deployment contains files that cannot be compiled: Compile failed:
+2018/02/04 14:11:07 go-app-builder: Failed parsing input: parser: bad import "syscall" in vendor/golang.org/x/net/icmp/endpoint.go
+```
+
+`dev_appserver.py app.yaml` error:
+```
+ERROR    2018-02-04 16:08:14,420 module.py:1602]
 ```
 
 Tree 3 - Vendoring via `dep` (alternate placement)
@@ -132,3 +155,23 @@ GOPATH (c:\projects\junk-test-app\)
             └───google.golang.org
                 └───appengine
 ```
+
+## Tree 3 - Errors
+
+In this scenario, no errors occur when running the program locally.
+
+However, locally hosting the app via `dev_appserver.py app.yaml` or deploying to GAE via `gcloud app deploy` terminates with the errors below, *which are different* than than the errors seen in *Tree 2*. 
+
+`gcloud app deploy` error:
+```
+ERROR: (gcloud.app.deploy) Error Response: [9] Deployment contains files that cannot be compiled: Compile failed:
+2018/02/04 17:09:39 go-app-builder: Failed parsing input: package "helloworld/vendor/google.golang.org/appengine" cannot import internal package "google.golang.org/appengine/internal/modules"
+```
+
+`dev_appserver.py app.yaml` error:
+```
+ERROR    2018-02-04 19:08:43,239 instance_factory.py:196] Failed to build Go application: (Executed command: C:\Users\Jonathan\AppData\Local\Google\Cloud SDK\google-cloud-sdk\platform\google_appengine\goroot-1.8\bin\go-app-builder.exe -app_base C:\Projects\junk-dev-app\src\helloworld\gaedef -api_version go1.8 -arch 6 -dynamic -goroot C:\Users\Jonathan\AppData\Local\Google\Cloud SDK\google-cloud-sdk\platform\google_appengine\goroot-1.8 -gopath C:/Projects/junk-dev-app -nobuild_files ^^$ -incremental_rebuild -unsafe -binary_name _go_app -extra_imports appengine_internal/init -work_dir c:\users\jonathan\appdata\local\temp\tmpoyfixwappengine-go-bin -gcflags -I,C:\\Users\\Jonathan\\AppData\\Local\\Google\\Cloud SDK\\google-cloud-sdk\\platform\\google_appengine\\goroot-1.8\\pkg\\linux_amd64_appengine -ldflags -L,C:\\Users\\Jonathan\\AppData\\Local\\Google\\Cloud SDK\\google-cloud-sdk\\platform\\google_appengine\\goroot-1.8\\pkg\\linux_amd64_appengine main.go)
+C:\Projects\junk-dev-app\src\helloworld\vendor\golang.org\x\net\context\go17.go:10: import C:\Users\Jonathan\AppData\Local\Google\Cloud SDK\google-cloud-sdk\platform\google_appengine\goroot-1.8\pkg\linux_amd64_appengine/context.a: object is [linux amd64 1.8.5 (appengine-1.9.65) X:framepointer] expected [windows amd64 1.8.5 (appengine-1.9.65) X:framepointer]
+C:\Projects\junk-dev-app\src\helloservice\helloservice.go:4: import C:\Users\Jonathan\AppData\Local\Google\Cloud SDK\google-cloud-sdk\platform\google_appengine\goroot-1.8\pkg\linux_amd64_appengine/fmt.a: object is [linux amd64 1.8.5 (appengine-1.9.65) X:framepointer] expected [windows amd64 1.8.5 (appengine-1.9.65) X:framepointer]
+```
+
